@@ -8,7 +8,7 @@ Você irá utilizar 2 ferramentas para desenvolver os laboratorios:
 
 ### Github Codespaces
 1. Vamos utilizar sua conta do github para acessar o Codespaces. Caso não tenha uma conta, crie uma em [github.com](github.com).
-2. Primeiro vamos fazer o fork do repositório que contém os exercícios da disciplina. Acesse o link [fiap-cloud-computing-tutorials](https://github.com/vamperst/fiap-cloud-computing-tutorials/tree/codespaces)
+2. Primeiro vamos fazer o fork do repositório que contém os exercícios da disciplina. Acesse o link [fiap-arquitetura-compute-e-storage](https://github.com/vamperst/fiap-arquitetura-compute-e-storage)
 3. No canto superior da tela haverá o botão `Forkear` para você copiar o repositório para sua conta do github. Clique nele para copiar o repositório para sua conta.
 
 ![](img/fork1.png)
@@ -17,28 +17,26 @@ Você irá utilizar 2 ferramentas para desenvolver os laboratorios:
 
 ![](img/fork2.png)
 
-5. Mude a branch para `codespaces` para que você tenha acesso aos exercicios da disciplina.
 
-![](img/fork3.png)
+5. Agora vamos criar de fato o Codespaces. Acesse o link [Github Codespaces](https://github.com/features/codespaces) e clique em `Get Started for free`.
 
-6. Agora vamos criar de fato o Codespaces. Acesse o link [Github Codespaces](https://github.com/features/codespaces) e clique em `Get Started for free`.
 
 ![](img/codespaces1.png)
 
-7. Clique em `New codespace` nmo canto superior direito para criar um novo ambiente.
+6. Clique em `New codespace` nmo canto superior direito para criar um novo ambiente.
 
 ![](img/codespaces2.png)
 
-8. Deixe as opções da tela da seguinte forma e clique em `Create Codespace`:
-   1. repository: `fiap-cloud-computing-tutorials`
-   2. Branch: `codespaces`
+7. Deixe as opções da tela da seguinte forma e clique em `Create Codespace`:
+   1. repository: `fiap-arquitetura-compute-e-storage`
+   2. Branch: `master`
    3. Dev container configuration: `FIAP Lab`
    4. Region: `US East`
    5. Machine type: `2-core`
 
 ![](img/codespaces3.png)
 
-9. Após a criação do ambiente, você será redirecionado para o ambiente do Codespaces. No canto inferior esquerdo da tela, clique em `Building codespace` na lateral inferior direita para abrir os logs de criação do Codespace.
+8. Após a criação do ambiente, você será redirecionado para o ambiente do Codespaces. No canto inferior esquerdo da tela, clique em `Building codespace` na lateral inferior direita para abrir os logs de criação do Codespace.
     
 ![](img/codespaces4.png)
 
