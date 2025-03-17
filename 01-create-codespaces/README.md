@@ -18,7 +18,7 @@ Você irá utilizar 2 ferramentas para desenvolver os laboratorios:
 ![](img/fork2.png)
 
 
-5. Agora vamos criar de fato o Codespaces. Acesse o link [Github Codespaces](https://github.com/features/codespaces) e clique em `Get Started for free`.
+5. Agora vamos criar de fato o Codespaces. Acesse o link [Github Codespaces](https://github.com/codespaces) e clique em `Get Started for free`.
 
 
 ![](img/codespaces1.png)
