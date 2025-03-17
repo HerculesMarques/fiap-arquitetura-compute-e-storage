@@ -530,3 +530,108 @@ aws configure set default.s3.max_concurrent_requests 1
 time (aws s3 cp s3://$bucket/upload1.test 5GB.file; aws s3 cp 5GB.file s3://$bucket/copy/5GB.file)  
 time aws s3api copy-object --copy-source $bucket/upload1.test --bucket $bucket --key copy/5GB-2.file
 time aws s3 cp s3://$bucket/upload1.test s3://$bucket/copy/5GB-3.file
+```
+
+<details>
+<summary>
+<b>Explicação dos comandos de cópia de arquivos no S3</b>
+</summary>
+<blockquote>
+
+Vamos comparar as três abordagens para copiar um arquivo de 5 GB no Amazon S3, utilizando a documentação oficial da AWS e resultados de pesquisa relevantes:
+
+---
+
+## **1. `aws s3 cp` com Download + Reupload**
+
+```bash
+time (aws s3 cp s3://$bucket/upload1.test 5GB.file; aws s3 cp 5GB.file s3://$bucket/copy/5GB.file)
+```
+
+
+### **Prós:**
+
+- **Simplicidade:** Não requer conhecimento de APIs específicas (operações de alto nível).
+- **Multipart automático:** Divide arquivos >64MB em partes (padrão: 16MB) para upload paralelo.
+- **Tolerância a falhas:** Retentativas automáticas em caso de erros de rede.
+
+
+### **Contras:**
+
+- **Latência dupla:** Transferência redundante (download + upload) pela rede, aumentando o tempo total.
+- **Custo:** Cobrança por transferência de dados de saída (egress) e entrada (ingress) [AWS Pricing].
+- **Uso de recursos locais:** Consome largura de banda e armazenamento temporário no cliente.
+
+---
+
+## **2. `aws s3api copy-object` Server-Side**
+
+```bash
+time aws s3api copy-object --copy-source $bucket/upload1.test --bucket $bucket --key copy/5GB-2.file
+```
+
+
+### **Prós:**
+
+- **Cópia direta no S3:** Operação server-side sem transferência pela rede (latência mínima).
+- **Sem custo de transferência:** Operações server-side na mesma região não geram cobrança de egress [AWS Docs].
+- **Atomicidade:** Operação única e atômica, sem estágios intermediários.
+
+
+### **Contras:**
+
+- **Limitação de tamanho:** Suporta apenas objetos ≤5 GB (requer multipart para arquivos maiores).
+- **Menos automatizado:** Não gerencia multipart automaticamente para objetos grandes.
+- **Sem progresso visível:** Não exibe feedback durante a operação (depende de logs do S3).
+
+---
+
+## **3. `aws s3 cp` Server-Side Copy**
+
+```bash
+time aws s3 cp s3://$bucket/upload1.test s3://$bucket/copy/5GB-3.file
+```
+
+
+### **Prós:**
+
+- **Cópia otimizada:** Detecta automaticamente cópias server-side quando origem/destino estão no S3.
+- **Multipart integrado:** Gerencia automaticamente cópias de arquivos >5 GB via multipart upload.
+- **Progresso em tempo real:** Exibe status de transferência durante a execução.
+
+
+### **Contras:**
+
+- **Dependência de região:** Cópias entre regiões podem acionar transferência via cliente [AWS Docs].
+- **Overhead de metadados:** Verifica propriedades do objeto antes da cópia (checksum, ACLs).
+
+---
+
+## **Comparação Técnica**
+
+| Critério | `aws s3 cp` (2 etapas) | `s3api copy-object` | `aws s3 cp` server-side |
+| :-- | :-- | :-- | :-- |
+| **Tempo** | Alto (2 transferências) | Baixo (server-side) | Moderado (verificações) |
+| **Custo** | Alto (egress + ingress) | Zero (server-side) | Zero (server-side) |
+| **Tamanho máximo** | 5 TB (com multipart) | 5 GB | 5 TB (com multipart) |
+| **Controle de progresso** | Sim | Não | Sim |
+| **Uso recomendado** | Cross-region/backup local | Cópias rápidas ≤5 GB | Cópias server-side ≥5 GB |
+
+---
+
+## **Recomendação da AWS**
+
+Para arquivos ≤5 GB em **mesma região**, use `aws s3api copy-object` ou `aws s3 cp` server-side. Para arquivos >5 GB, **sempre prefira `aws s3 cp` server-side**, que automatiza multipart upload sem transferência redundante. Evite abordagens de download/reupload devido a custos e latência.
+
+</blockquote>
+</details>
+
+#### Conclusão e deletando dados
+
+1. Após realizar todos os testes, delete os arquivos que você criou no bucket e localmente:
+
+```bash
+aws s3 rm s3://${bucket}/ --recursive
+cd /workspaces
+rm -rf s3-performance
+```
