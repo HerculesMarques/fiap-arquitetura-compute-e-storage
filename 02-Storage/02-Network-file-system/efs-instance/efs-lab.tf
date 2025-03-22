@@ -1,39 +1,3 @@
-variable "bucket" {
-  description = "Name of the S3 Bucket to use for the lab"
-  type        = string
-  validation {
-    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9-]*$", var.bucket))
-    error_message = "The bucket must begin with a letter and contain only alphanumeric characters or hyphens."
-  }
-}
-
-variable "subnet1" {
-  description = "Subnet ID to use for the EC2 resources"
-  type        = string
-}
-
-variable "subnet2" {
-  description = "Subnet ID to use for the EC2 resources"
-  type        = string
-}
-
-variable "security_group" {
-  description = "Security Group ID to use for the EC2 resources"
-  type        = string
-}
-
-variable "iam_profile" {
-  description = "IAM Profile to use for the EC2 resources"
-  type        = string
-  default     = "LabInstanceProfile"
-}
-
-variable "linux_ami" {
-  description = "Linux AMI ID"
-  type        = string
-  default     = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
-}
-
 # Data to retrieve the AMI ID from SSM Parameter
 data "aws_ssm_parameter" "linux_ami" {
   name = var.linux_ami
@@ -51,15 +15,15 @@ resource "aws_efs_file_system" "sid_filesystem" {
 
 resource "aws_efs_mount_target" "sid_mount_target" {
   file_system_id  = aws_efs_file_system.sid_filesystem.id
-  subnet_id       = var.subnet1
-  security_groups = [var.security_group]
+  subnet_id       = random_shuffle.random_subnet.result[0]
+  security_groups = [aws_security_group.allow-ssh.id]
 }
 
 resource "aws_instance" "sid_perf_instance" {
   ami                         = data.aws_ssm_parameter.linux_ami.value
   instance_type               = "c5.large"
-  subnet_id                   = var.subnet1
-  vpc_security_group_ids      = [var.security_group]
+  subnet_id                   = random_shuffle.random_subnet.result[0]
+  vpc_security_group_ids      = [aws_security_group.allow-ssh.id]
   iam_instance_profile        = var.iam_profile
   depends_on                  = [aws_efs_mount_target.sid_mount_target]
 
@@ -86,6 +50,7 @@ resource "aws_instance" "sid_perf_instance" {
               sudo yum install fio amazon-efs-utils git -y
               sudo amazon-linux-extras install epel -y
               sudo yum install fpart -y
+              sudo yum install parallel -y
               sudo wget https://ftpmirror.gnu.org/parallel/parallel-20191022.tar.bz2
               sudo bzip2 -dc parallel-20191022.tar.bz2 | tar xvf -
               cd parallel-20191022
