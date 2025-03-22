@@ -1,4 +1,4 @@
-# 02 - Storage de objetos
+# 02.1 - Storage de objetos
 
 **Todos os comandos de terminal desse execício devem ser executados no Codespaces que você criou na configuração inicial.**
 
