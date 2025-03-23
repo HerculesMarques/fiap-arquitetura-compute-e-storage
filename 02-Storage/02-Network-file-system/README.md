@@ -6,11 +6,13 @@
 
 Neste exercício, você irá aprender como otimizar a performance do **Amazon Elastic File System (EFS)**. O objetivo é explorar as práticas recomendadas para aumentar throughput, reduzir latência e garantir escalabilidade eficiente para aplicações modernas. Durante o laboratório, serão demonstrados ajustes em modos de performance e configurações de throughput, evidenciando como o EFS pode ser ajustado dinamicamente para atender demandas variáveis de carga de trabalho.
 
-Esse exercício é composto por 4 partes:
+Esse exercício é composto por 5 partes:
+
 - **Parte 1**: Configuração do Ambiente para execução do laboratório
 - **Parte 2**: Otimização de IOPS
 - **Parte 3**: Tamanho do I/O e Frequencia de Sincronização
 - **Parte 4**: Multi-Threaded
+- **Parte 5**: Delete do Ambiente
 
 ## Parte 1 - Configuração do Ambiente
 
@@ -563,4 +565,172 @@ Os quatro comandos apresentados oferecem diferentes abordagens para criar arquiv
 4. **Tamanho de Bloco de 16 MB com `oflag=sync`**: Este comando combina o melhor desempenho possível com sincronização eficiente, tornando-o ideal para situações que exigem alta taxa de transferência e garantia de escrita imediata. É a escolha mais adequada para ambientes que necessitam de um equilíbrio entre desempenho e integridade dos dados.
 
 Em resumo, a escolha do comando depende das prioridades específicas do negócio, como desempenho, integridade dos dados e eficiência na sincronização. O EFS é uma plataforma flexível que pode se adaptar a diferentes necessidades de operações de E/S, tornando esses comandos úteis para uma variedade de cenários de uso.
+
+## Parte 4 - EFS - Multi-Threaded I/O
+
+#### Introdução ao EFS Multi Threaded
+
+Nesta seção da aula, exploraremos como otimizar o desempenho do Amazon Elastic File System (EFS) utilizando acesso multithreaded. O uso de múltiplas threads permite aumentar significativamente a taxa de transferência de dados e as operações por segundo (IOPS), aproveitando o design de armazenamento distribuído do EFS.
+
+##### **Objetivo do Exercício**
+
+O exercício prático demonstrará como o acesso multithreaded melhora a taxa de transferência e as IOPS. Você aprenderá a:
+
+- **Executar comandos em paralelo**: Utilizando ferramentas como `parallel`, você verá como distribuir operações de escrita em várias threads.
+- **Medir o desempenho**: Ao gravar dados em diferentes configurações de thread (4 e 16 threads), você comparará os tempos de execução e entenderá como o aumento do número de threads afeta o desempenho geral do EFS.
+
+### **Benefícios do EFS Multi Threaded**
+
+- **Aumento da Taxa de Transferência**: Ao paralelizar operações de escrita, você pode aumentar a taxa de transferência geral para o EFS.
+- **Melhoria nas IOPS**: O uso de múltiplas threads permite que o EFS atinja níveis mais altos de IOPS, tornando-o mais eficiente para aplicações intensivas.
+- **Escalabilidade**: Com o design de armazenamento distribuído do EFS, aplicações multithreaded podem impulsionar níveis substanciais de taxa de transferência agregada e IOPS.
+
+1. Vamos começar criando um arquivo de 2GB com 4 threads. Execute o comando abaixo:
+
+```bash
+time seq 0 3 | parallel --will-cite -j 4 dd if=/dev/zero \
+of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=512 oflag=sync
+```
+
+![](img/t23.png)
+
+<details>
+<summary>
+<b>Explicação do comando de escrita de arquivo de 2GB com 4 threads</b>
+</summary>
+<blockquote>
+
+### Comando Desmembrado
+
+1. **`time seq 0 3`**:
+   - **`time`**: Este comando mede o tempo necessário para a execução de outro comando.
+   - **`seq 0 3`**: Gera uma sequência numérica de 0 a 3. O comando `seq` é usado para gerar uma série de números.
+
+2. **`parallel --will-cite -j 4`**:
+   - **`parallel`**: Ferramenta que permite executar comandos em paralelo. Isso significa que em vez de executar os comandos sequencialmente, eles são executados simultaneamente.
+   - **`--will-cite`**: Não é um parâmetro padrão do `parallel`. Pode ser um erro de digitação ou um parâmetro personalizado não padrão. Normalmente, o `parallel` usa opções como `-j` para especificar o número de trabalhos a serem executados em paralelo.
+   - **`-j 4`**: Especifica que quatro trabalhos devem ser executados em paralelo.
+
+3. **`dd if=/dev/zero of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=512 oflag=sync`**:
+   - **`dd`**: Comando que copia e converte arquivos. Aqui, ele é usado para criar arquivos de 2 GB cada.
+   - **`if=/dev/zero`**: Lê de `/dev/zero`, que é um dispositivo especial que fornece um fluxo infinito de zeros.
+   - **`of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{}`**: Especifica o nome do arquivo de saída. O nome inclui a data e hora atual (com precisão de milissegundos) e um número que será substituído pelo `parallel`.
+   - **`bs=1M`**: Define o tamanho do bloco para 1 megabyte.
+   - **`count=512`**: Especifica que 512 blocos devem ser escritos, resultando em um arquivo de 512 MB (não 2 GB como sugerido pelo nome do arquivo).
+   - **`oflag=sync`**: Força a escrita síncrona, garantindo que os dados sejam gravados imediatamente no disco.
+
+### Como Funciona
+
+1. **Geração de Sequência e Execução Paralela**: O `seq 0 3` gera números de 0 a 3, que são usados pelo `parallel` para executar quatro instâncias do comando `dd` simultaneamente.
+
+2. **Criação de Arquivos**: Cada instância do `dd` cria um arquivo de 512 MB no diretório `/efs/tutorial/dd/`. O nome do arquivo inclui a data e hora atual e um número que varia de 0 a 3.
+
+3. **Impacto no Desempenho do EFS**:
+   - **Escrita Paralela**: A escrita paralela pode aumentar a carga no EFS, especialmente se o sistema estiver configurado para lidar com um grande número de operações de E/S simultâneas.
+   - **Tamanho dos Blocos e Sincronização**: O uso de blocos de 1 MB com `oflag=sync` garante que as operações de escrita sejam concluídas rapidamente, mas pode aumentar a sobrecarga devido à sincronização.
+   - **Monitoramento e Limites**: O EFS tem limites de taxa de transferência e IOPS (operações de entrada/saída por segundo) que podem ser alcançados com operações intensivas como essa. Se esses limites forem ultrapassados, o desempenho pode ser afetado.
+
+### Considerações de Desempenho
+
+- **Monitoramento**: É crucial monitorar o desempenho do EFS durante operações intensivas para garantir que os limites de IOPS e taxa de transferência não sejam ultrapassados.
+- **Otimização**: Ajustar o tamanho dos blocos e o número de trabalhos em paralelo pode ajudar a otimizar o desempenho com base nas especificações do sistema e nas necessidades da aplicação.
+- **Configuração do EFS**: Verificar a configuração do EFS, como o tipo de sistema de arquivos e as opções de montagem, pode ajudar a melhorar o desempenho em operações de E/S intensivas.
+
+</blockquote>
+</details>
+
+2. Agora vamos criar o mesmo arquivo de 2GB, mas com 16 threads. Execute o comando abaixo:
+
+```bash
+time seq 0 15 | parallel --will-cite -j 16 dd if=/dev/zero \
+of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=128 oflag=sync  
+```
+![](img/t24.png)
+
+<details>
+<summary>
+<b>Explicação do comando de escrita de arquivo de 2GB com 16 threads</b>
+</summary>
+<blockquote>
+
+### Comando Desmembrado
+
+1. **`seq 0 15`**:
+   - Gera uma sequência numérica de 0 a 15. Isso significa que o comando `parallel` irá executar 16 instâncias do comando `dd`.
+
+2. **`parallel --will-cite -j 16`**:
+   - **`-j 16`**: Especifica que 16 trabalhos devem ser executados em paralelo. Isso significa que 16 instâncias do comando `dd` serão executadas simultaneamente.
+
+3. **`dd if=/dev/zero of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=128 oflag=sync`**:
+   - **`count=128`**: Cada arquivo gerado terá 128 blocos de 1 MB, resultando em arquivos de 128 MB cada.
+
+### Como Funciona
+
+1. **Execução Paralela Aumentada**: Com 16 instâncias do `dd` executadas simultaneamente, a carga no EFS aumenta significativamente em comparação com a execução de apenas 4 instâncias no comando anterior.
+
+2. **Tamanho dos Arquivos**: Cada arquivo gerado tem 128 MB, o que é menor do que os 512 MB dos arquivos no comando anterior.
+
+### Impacto no Desempenho do EFS
+
+1. **Aumento da Carga de E/S**:
+   - Executar 16 operações de escrita em paralelo aumenta a carga de E/S no EFS. Isso pode levar a um aumento na latência e no uso de recursos se o sistema não estiver configurado para lidar com essa carga.
+
+2. **Limites de IOPS e Taxa de Transferência**:
+   - O EFS tem limites de IOPS e taxa de transferência. Executar muitas operações em paralelo pode ultrapassar esses limites, especialmente se o sistema de arquivos estiver configurado para otimizar a capacidade de transferência em vez da latência.
+
+3. **Otimização do Desempenho**:
+   - Para otimizar o desempenho, é importante monitorar os limites de IOPS e taxa de transferência do EFS e ajustar o número de operações em paralelo com base nas especificações do sistema e nas necessidades da aplicação.
+
+4. **Configuração do EFS**:
+   - Ajustar a configuração do EFS, como o tipo de sistema de arquivos e as opções de montagem, pode ajudar a melhorar o desempenho em operações de E/S intensivas.
+
+### Considerações Adicionais
+
+- **Monitoramento Contínuo**: É crucial monitorar continuamente o desempenho do EFS durante operações intensivas para garantir que os limites não sejam ultrapassados e que o sistema esteja operando dentro dos parâmetros esperados.
+- **Ajustes Dinâmicos**: Ajustar dinamicamente o número de trabalhos em paralelo ou o tamanho dos arquivos com base no desempenho real pode ajudar a otimizar a utilização dos recursos do EFS.
+
+</blockquote>
+</details>
+
+
+### Conclusão Comparativa
+
+Os dois comandos analisados são utilizados para realizar operações de escrita em disco no Amazon Elastic File System (EFS), mas apresentam diferenças significativas em termos de escala e configuração.
+
+**Diferenças Principais:**
+
+1. **Número de Instâncias Paralelas**:
+   - O primeiro comando executa 4 instâncias do `dd` em paralelo, enquanto o segundo comando executa 16 instâncias. Isso significa que o segundo comando coloca uma carga muito maior no EFS.
+   
+2. **Tamanho dos Arquivos**:
+   - O primeiro comando gera arquivos de 512 MB cada, enquanto o segundo comando gera arquivos de 128 MB. Isso pode afetar o desempenho em termos de IOPS e taxa de transferência.
+
+3. **Impacto no Desempenho**:
+   - O segundo comando, devido ao maior número de instâncias paralelas e ao menor tamanho dos arquivos, pode ser mais propenso a ultrapassar os limites de IOPS do EFS, especialmente em sistemas que não estão otimizados para alta carga de E/S.
+
+**Quando Utilizar Cada Comando:**
+
+1. **Comando com 4 Instâncias Paralelas**:
+   - Ideal para testes de desempenho em ambientes menores ou quando se deseja uma carga moderada no EFS. É útil para avaliar o comportamento do sistema em condições de carga mais controladas.
+   
+2. **Comando com 16 Instâncias Paralelas**:
+   - Apropriado para simular cargas extremas em ambientes de produção ou em testes de escalabilidade. É útil para avaliar a capacidade do EFS de lidar com operações intensivas e identificar possíveis gargalos.
+
+Em resumo, o comando com menos instâncias paralelas é mais adequado para testes de desempenho em ambientes menores ou para simular cargas moderadas, enquanto o comando com mais instâncias é melhor para testes de escalabilidade e simulação de cargas extremas. A escolha depende das necessidades específicas do teste e da configuração do sistema.
+
+## Parte 5 - Delete o ambiente
+
+1. Devolta ao `Codespaces`, entre na pasta onde criou executou o terraform de criação do EFS e Ec2.
+
+```bash
+cd /workspaces/fiap-arquitetura-compute-e-storage/02-Storage/02-Network-file-system/efs-instance
+```
+
+2. Execute o comando abaixo para deletar o ambiente. Ao final do comando ficará como na imagem abaixo.
+
+```bash
+terraform destroy -auto-approve
+```
+
+![](img/t25.png)
 
