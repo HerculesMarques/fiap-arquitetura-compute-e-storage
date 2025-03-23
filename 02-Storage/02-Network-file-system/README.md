@@ -149,6 +149,7 @@ df -h
 ```
    ![](img/t14.png)
 
+
 **Caso o EFS não tenha sido montado, execute o comando abaixo:**
 
 ```bash
