@@ -1,7 +1,11 @@
 #!/bin/bash
 
 echo "🧼 Atualizando o sistema..."
-sudo DEBIAN_FRONTEND=noninteractive apt update -y && sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+# Evita prompt do needrestart
+sudo sed -i 's/^#\$nrconf{restart} =.*/\$nrconf{restart} = "l";/' /etc/needrestart/needrestart.conf
+# Atualiza o sistema sem interação
+sudo apt update -y && sudo apt upgrade -y
+
 sudo apt install -y build-essential git curl wget unzip sysbench python3
 
 echo "🟢 Instalando Node.js"
