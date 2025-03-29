@@ -2,10 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-data "aws_subnet" "selected" {
-  id = var.subnet_id
-}
-
 data "aws_caller_identity" "current" {}
 
 resource "aws_ecs_cluster" "lab_cluster" {
@@ -22,7 +18,7 @@ resource "aws_ecs_task_definition" "app" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabInstanceProfile"
+  execution_role_arn       = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
 
   container_definitions = jsonencode([
     {
@@ -48,8 +44,8 @@ resource "aws_ecs_service" "app_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [var.subnet_id]
-    security_groups  = [var.security_group_id]
+    subnets          = [random_shuffle.random_subnet.result[0]]
+    security_groups  = [aws_security_group.sec-fargate.id]
     assign_public_ip = true
   }
 }

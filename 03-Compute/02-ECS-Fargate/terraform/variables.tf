@@ -1,9 +1,30 @@
-variable "subnet_id" {
-  description = "ID da subnet pública (use uma existente no Academy)"
-  type        = string
+variable "project" {
+  default = "fiap-lab"
 }
 
-variable "security_group_id" {
-  description = "Security Group com porta 3000 liberada"
-  type        = string
+data "aws_vpc" "vpc" {
+    tags = {
+        Name = "${var.project}"
+    }
+}
+
+data "aws_subnets" "all" {
+  filter {
+    name   = "tag:Tier"
+    values = ["Public"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = ["${data.aws_vpc.vpc.id}"]
+  }
+}
+
+data "aws_subnet" "public" {
+  for_each = toset(data.aws_subnets.all.ids)
+  id       = each.value
+}
+
+resource "random_shuffle" "random_subnet" {
+  input        = [for s in data.aws_subnet.public : s.id]
+  result_count = 1
 }
