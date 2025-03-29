@@ -280,6 +280,7 @@ docker push $ECR_REPO_URL:latest
     5. Caso de certo você verá a tela abaixo
      
      ![](img/13.png)
+    
     6. Caso esteja conectado a rede da FIAP e não consiga acessar a porta 3000 via naveegador, copie o IP e utilize o terminal do codespaces para testar o acesso com o comando abaixo:
     ```bash
     curl http://IP_DO_FARGATE:3000
