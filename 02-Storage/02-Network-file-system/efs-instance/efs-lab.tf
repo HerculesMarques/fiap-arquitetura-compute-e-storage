@@ -74,6 +74,9 @@ resource "aws_instance" "sid_perf_instance" {
               echo 'fiap-efs-lab' | sudo tee -a /proc/sys/kernel/hostname
               python /home/ec2-user/smallfile/smallfile_cli.py --operation create --threads 10 --file-size 1024 --file-size-distribution exponential --files 200 --same-dir N --dirs-per-dir 1024 --hash-into-dirs Y --files-per-dir 10240 --top /ebs/tutorial/smallfile
               cp -R /ebs/tutorial/smallfile/file_srcdir/storage-workshop /ebs/tutorial/data-1m/
+              mkdir -p ~/.aws
+              aws configure set region us-east-1
+              aws configure set output json
               EOF
 }
 

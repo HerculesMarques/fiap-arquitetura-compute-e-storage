@@ -123,6 +123,7 @@ terraform apply out.plan
 </blockquote>
 </details>
 
+![](img/15.png)
 ## Componentes do Amazon ECS (Elastic Container Service)
 
 O Amazon ECS é um serviço gerenciado da AWS que facilita a execução e o gerenciamento de aplicações em contêineres. Ele é composto por diversos componentes que trabalham juntos para oferecer um ambiente escalável, flexível e seguro. Abaixo, explico cada componente detalhadamente:
