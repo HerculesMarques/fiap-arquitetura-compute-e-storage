@@ -142,7 +142,15 @@ sudo su -
 
    ![](img/t12.png)
 
-24. Para ter certeza que o EFS foi montado corretamente, execute o comando abaixo:
+24. Execute o comando abaixo para o AWS Cli configurar a região e o output:
+
+```bash
+mkdir -p ~/.aws
+aws configure set region us-east-1
+aws configure set output json
+```
+
+25.  Para ter certeza que o EFS foi montado corretamente, execute o comando abaixo:
 
 ```bash
 df -h
