@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 data "aws_caller_identity" "current" {}
 
 resource "aws_ecs_cluster" "lab_cluster" {
