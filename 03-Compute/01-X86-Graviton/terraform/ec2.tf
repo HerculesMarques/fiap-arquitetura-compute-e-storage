@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 # Ubuntu 22.04 LTS para x86_64
 data "aws_ami" "ubuntu_x86" {
   most_recent = true
