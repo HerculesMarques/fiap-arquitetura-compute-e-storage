@@ -60,12 +60,18 @@ sudo yum update -y
 sudo yum install -y parallel
 ```
 
+
+### Entregável
+
+- Monte um zip com todos os prints requisitados durante os testes
+  - Além dos prints já requisitados, tire os seguintes prints:
+    - Entre no EFS e tire um print de quanto storage esta sendo utilizado
+    - Entre no S3 e tire um prints dos conteudos gerados durante o trabalho
+
 ### Dicas
 
 - Os comandos pedidos já foram executados com outra fonte na [demo do s3](../02-Storage/01-Storage-de-Objetos/README.md) e na [demo EFS](../02-Storage/02-Network-file-system/README.md)
 
 - Nos prints, mostre que os comandos foram executados de dentro da pasta do EFS
 - O terraform executado acima já cria o bucket do S3, o EFS, e a instância EC2 do tipo c5.large já configurada com o EFS, não é necessário criar mais nada
-
- 
-    
+- Ao terminar o trabalho, retorne ao codespaces e execute um **terraform destroy** para não ficar com a conta da AWS suja
