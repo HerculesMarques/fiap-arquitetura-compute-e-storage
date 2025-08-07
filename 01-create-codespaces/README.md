@@ -13,9 +13,7 @@ Você irá utilizar 2 ferramentas para desenvolver os laboratorios:
 
 ![](img/fork1.png)
 
-4. Após clicar no botão, você será redirecionado para a tela de fork do repositório. Deixe a opção `Copy the master branch only` desmarcada como no print para que copie todas as branches do repositório. Clique em `Create Fork` para copiar o repositório para sua conta.
-
-![](img/fork2.png)
+4. Após clicar no botão, você será redirecionado para a tela de fork do repositório. Deixe a opção `Copy the master branch only` desmarcada para que copie todas as branches do repositório. Clique em `Create Fork` para copiar o repositório para sua conta.
 
 
 5. Agora vamos criar de fato o Codespaces. Acesse o link [Github Codespaces](https://github.com/codespaces) e clique em `Get Started for free`.
