@@ -1,5 +1,8 @@
 # 03.1 - Compute X86 vs Graviton
 
+
+**Antes de começar, execute os passos abaixo para configurar o ambiente caso não tenha feito isso ainda na aula de HOJE: [Preparando Credenciais](../../01-create-codespaces/Inicio-de-aula.md)**
+
 ### 🔍 Introdução ao Laboratório: Comparando Arquiteturas EC2 (x86 vs Graviton)
 
 Neste laboratório prático, você irá explorar na prática as diferenças entre duas arquiteturas de instâncias EC2 amplamente utilizadas na AWS: **x86_64 (Intel/AMD)** e **Graviton (ARM64)**.

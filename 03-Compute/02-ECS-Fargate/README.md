@@ -1,5 +1,8 @@
 # 03.2 - Lab ECS + Fargate
 
+
+**Antes de começar, execute os passos abaixo para configurar o ambiente caso não tenha feito isso ainda na aula de HOJE: [Preparando Credenciais](../../01-create-codespaces/Inicio-de-aula.md)**
+
 ## Introdução ao Lab: ECS + Fargate
 
 Neste exercício, vamos aprender como executar uma aplicação em contêiner utilizando o **Amazon ECS (Elastic Container Service)** com a tecnologia **Fargate**, que permite rodar containers sem precisar gerenciar servidores ou clusters.
